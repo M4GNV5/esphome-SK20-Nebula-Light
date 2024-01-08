@@ -20,24 +20,10 @@ The following repositories, projects and tools helped a lot in jailbreaking my n
 ![](esphome-screenshot.png)
 
 ## Basic instructions
-This guide assumes you have a Linux computer and some basic terminal knowledge
+This guide assumes you have a Linux computer and some basic terminal knowledge.
+The used tools also have some prerequisites like `python`, `docker` and `plattform.io`
 
-
-Flash esphome-quickstart using [tuya-cloudcutter.sh](https://github.com/tuya-cloudcutter/tuya-cloudcutter):
-```bash
-git clone https://github.com/tuya-cloudcutter/tuya-cloudcutter
-sudo ./tuya-cloudcutter.sh
-```
-
-The program will guide you through the installation procedure, asking for the following information:
-- (2) Flash 3rd Party Firmware
-- By manufacturer/device name
-- Tuya Generic
-- SK20 Smart Star Projector
-- 1.1.2 - BK7231T / oem_bk7231t_light3_laser_nanxin
-- ESPHome-Kickstart-v23.08.29_bk7231t_app.ota.ug.bin
-
-Create a `secrets.yaml` file inputting your own parameter:
+First create a `secrets.yaml` file inputting your own parameters:
 ```yaml
 wifi_ssid: "<your SSID>"
 wifi_password: "<your wifi password>"
@@ -46,12 +32,23 @@ ota_password: "<some random password>"
 api_password: "<either: your home assistant api password>"
 ```
 
-and then build an esphome image using the following commands:
+Then, build and flash the image using the following commands:
 ```bash
+$ git clone https://github.com/M4GNV5/esphome-SK20-Nebula-Light
+$ git clone https://github.com/tuya-cloudcutter/tuya-cloudcutter
+$ cd esphome-SK20-Nebula-Light
 $ pip install esphome
 $ esphome compile wb3s_nebula_light.yaml
+$ cp ./.esphome/build/sternenhimmel/.pioenvs/sternenhimmel/image_bk7231t_app.ota.ug.bin ../tuya-cloudcutter/custom-firmware/
+$ sudo ./tuya-cloudcutter.sh
 ```
 
-Now connect to the nebula light AP use the OTA file select to select the compiled binary found at: `./.esphome/build/sternenhimmel/.pioenvs/sternenhimmel/image_bk7231t_app.ota.ug.bin`
+The last program will guide you through the jailbreaking procedure, asking you for the following information. You will also have to long press the device button for a few seconds twice until it is slow blinking (WiFi AP mode):
+- (2) Flash 3rd Party Firmware
+- By manufacturer/device name
+- Tuya Generic
+- SK20 Smart Star Projector
+- 1.1.2 - BK7231T / oem_bk7231t_light3_laser_nanxin
+- image_bk7231t_app.ota.ug.bin
 
 The nebula light should now connect to your Wifi and/or host its own fallback AP.
