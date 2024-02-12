@@ -114,6 +114,11 @@ switch:
       - light.turn_off: rgb_light
       - light.turn_off: button_led1
 
+    on_turn_on:
+      - script.execute: script_switch_main_timer
+    on_turn_off:
+      - script.stop: script_switch_main_timer
+
 fan:
   platform: speed
   name: "${device_name} Motor"
@@ -167,3 +172,11 @@ binary_sensor:
     on_press:
       then:
         - switch.toggle: switch_main
+
+# Turn off the light, laser and motor automatically after specified delay
+script:
+  - id: script_switch_main_timer
+    mode: restart
+    then:
+      - delay: 1h
+      - switch.turn_off: switch_main
