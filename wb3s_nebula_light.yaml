@@ -32,11 +32,21 @@ api:
 web_server:
   port: 80
 
+
+###########################################
+
+
 esphome:
   name: "${device_identifier}"
 
 bk72xx:
   board: wb3s
+
+globals:
+  - id: global_scene_id
+    type: size_t
+    restore_value: yes
+    initial_value: "0"
 
 light:
   - platform: rgb
@@ -85,41 +95,6 @@ light:
     restore_mode: ALWAYS_OFF
     internal: true
 
-# The template switch representing the device is currently active (laser/light or motor is ON).
-switch:
-  - platform: template
-    name: "${device_name} Main Switch"
-    id: switch_main
-    lambda: |-
-      return (id(motor).state || id(laser).current_values.is_on() || id(rgb_light).current_values.is_on());
-
-    # Set the defaults on turn on
-    turn_on_action:
-      - fan.turn_on:
-          id: motor
-          speed: 50
-      - light.turn_on:
-          id: laser
-          brightness: 60%
-      - light.turn_on:
-          id: rgb_light
-          brightness: 50%
-
-    # Completely turn off the lights and motor
-    turn_off_action:
-      - fan.turn_off: motor
-      - light.turn_off: laser
-      - light.turn_off: rgb_light
-
-    on_turn_on:
-      - light.turn_on:
-          id: button_led1
-          brightness: 50%
-      - script.execute: script_switch_main_timer
-    on_turn_off:
-      - light.turn_off: button_led1
-      - script.stop: script_switch_main_timer
-
 fan:
   platform: speed
   name: "${device_name} Motor"
@@ -127,6 +102,36 @@ fan:
   id: motor
   output: motor_pwm
   restore_mode: ALWAYS_OFF
+
+# The template switch representing the device is currently active (laser/light
+# or motor is ON).
+switch:
+  - platform: template
+    name: "${device_name} Main Switch"
+    id: switch_main
+    lambda: "return (id(motor).state || id(laser).current_values.is_on() || id(rgb_light).current_values.is_on());"
+
+    # Turn on the last scene. In a case there is no last scene saved, use the
+    # first scene in select (id=0).
+    turn_on_action:
+      - select.set_index:
+          id: select_scene
+          index: !lambda "return id(global_scene_id);"
+
+    # Completely turn off the laser, light, motor and button LED
+    turn_off_action:
+      - fan.turn_off: motor
+      - light.turn_off: laser
+      - light.turn_off: rgb_light
+      - light.turn_off: button_led1
+      - script.stop: script_turn_off_timer
+
+      # Remember currently selected scene
+      - lambda: |-
+          auto index = id(select_scene).active_index();
+          if (index.has_value()) {
+            id(global_scene_id) = index.value();
+          }
 
 output:
   - platform: libretiny_pwm
@@ -171,14 +176,149 @@ binary_sensor:
       mode: INPUT_PULLDOWN_16
       inverted: true
     name: "${device_name} Button"
-    on_press:
-      then:
-        - switch.toggle: switch_main
 
-# Turn off the light, laser and motor automatically after specified delay
+    # Change the scene on short press/click
+    on_click:
+      then:
+        # Do not switch the scene when all the components (switch_main) are
+        # turned off. Allow the scene switching only when the switch_main is
+        # on. When the switch is off, just turn it on.
+        - if:
+            condition:
+              - switch.is_on: switch_main
+            then:
+              - select.next: select_scene
+            else:
+              - switch.turn_on: switch_main
+
+    # Turn off after a button long press
+    on_multi_click:
+      - timing:
+          - on for at least 1s
+        then:
+          - switch.turn_off: switch_main
+
+# Turn off the light, laser and motor automatically after a specified delay
 script:
-  - id: script_switch_main_timer
+  - id: script_turn_off_timer
     mode: restart
     then:
       - delay: 1h
       - switch.turn_off: switch_main
+
+select:
+  platform: template
+  name: Scene
+  id: select_scene
+  options:
+    - "Scene - Red"
+    - "Scene - Blue"
+    - "Scene - Green"
+    - "Scene - White"
+    - "Scene - Dimmed"
+  optimistic: true
+  on_value:
+    then:
+      # Always reset the timer script
+      - script.stop: script_turn_off_timer
+      - script.execute: script_turn_off_timer
+
+      # Make sure the button LED is ON
+      - light.turn_on:
+          id: button_led1
+          brightness: 60%
+
+      # [INDEX=0]: Scene - Red
+      - if:
+          condition:
+            lambda: |-
+              return (id(select_scene).active_index() == 0);
+          then:
+            - light.turn_on:
+                id: rgb_light
+                brightness: 50%
+                red: 80%
+                green: 0%
+                blue: 50%
+            - light.turn_on:
+                id: laser
+                brightness: 60%
+            - fan.turn_on:
+                id: motor
+                speed: 40
+
+      # [INDEX=1]: Scene - Blue
+      - if:
+          condition:
+            lambda: |-
+              return (id(select_scene).active_index() == 1);
+          then:
+            - light.turn_on:
+                id: rgb_light
+                brightness: 50%
+                red: 50%
+                green: 0%
+                blue: 100%
+            - light.turn_on:
+                id: laser
+                brightness: 60%
+            - fan.turn_on:
+                id: motor
+                speed: 40
+
+      # [INDEX=2]: Scene - Green
+      - if:
+          condition:
+            lambda: |-
+              return (id(select_scene).active_index() == 2);
+          then:
+            - light.turn_on:
+                id: rgb_light
+                brightness: 50%
+                red: 0%
+                green: 60%
+                blue: 30%
+            - light.turn_on:
+                id: laser
+                brightness: 60%
+            - fan.turn_on:
+                id: motor
+                speed: 40
+
+      # [INDEX=3]: Scene - White
+      - if:
+          condition:
+            lambda: |-
+              return (id(select_scene).active_index() == 3);
+          then:
+            - light.turn_on:
+                id: rgb_light
+                brightness: 100%
+                red: 100%
+                green: 100%
+                blue: 100%
+            - light.turn_on:
+                id: laser
+                brightness: 100%
+            - fan.turn_on:
+                id: motor
+                speed: 50
+
+      # [INDEX=4]: Scene - Dimmed
+      - if:
+          condition:
+            lambda: |-
+              return (id(select_scene).active_index() == 4);
+          then:
+            - light.turn_on:
+                id: rgb_light
+                brightness: 30%
+                red: 5%
+                green: 5%
+                blue: 5%
+            - light.turn_on:
+                id: laser
+                brightness: 30%
+            - fan.turn_on:
+                id: motor
+                speed: 10
