@@ -65,6 +65,7 @@ light:
 
   - platform: monochromatic
     name: "${device_name} Laser"
+    icon: mdi:laser-pointer
     id: laser
     output: laser_pwm
     restore_mode: ALWAYS_OFF
@@ -122,6 +123,7 @@ switch:
 fan:
   platform: speed
   name: "${device_name} Motor"
+  icon: mdi:rotate-right
   id: motor
   output: motor_pwm
   restore_mode: ALWAYS_OFF
