@@ -15,9 +15,9 @@ The following repositories, projects and tools helped a lot in jailbreaking my n
 
 ## Pictures
 
-![](device-image.jpg)
+![](images/device-image.jpg)
 
-![](esphome-screenshot.png)
+![](images/esphome-screenshot.png)
 
 ## Basic instructions
 This guide assumes you have a Linux computer and some basic terminal knowledge.
