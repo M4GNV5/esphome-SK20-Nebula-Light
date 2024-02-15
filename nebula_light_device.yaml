@@ -3,45 +3,6 @@
 # - https://github.com/fonix232/esphome_nebula_light
 # - https://github.com/kireque/esphome_nebula_light/issues/8
 
-substitutions:
-  device_identifier: "nebula"
-  device_name: "Star projector"
-
-
-wifi:
-  ssid: !secret wifi_ssid
-  password: !secret wifi_password
-  domain: .my-domain.com
-  power_save_mode: none
-
-  ap:
-    ssid: "Fallback AP"
-    password: !secret wifi_fallback_password
-
-captive_portal:
-
-logger:
-  level: INFO
-
-ota:
-  password: !secret ota_password
-
-api:
-  password: !secret api_password
-
-web_server:
-  port: 80
-
-
-###########################################
-
-
-esphome:
-  name: "${device_identifier}"
-
-bk72xx:
-  board: wb3s
-
 globals:
   - id: global_scene_id
     type: size_t
@@ -208,7 +169,7 @@ script:
 
 select:
   platform: template
-  name: Scene
+  name: "${device_name} Scene"
   id: select_scene
   options:
     - "Scene - Red"
@@ -231,8 +192,7 @@ select:
       # [INDEX=0]: Scene - Red
       - if:
           condition:
-            lambda: |-
-              return (id(select_scene).active_index() == 0);
+            lambda: "return (id(select_scene).active_index() == 0);"
           then:
             - light.turn_on:
                 id: rgb_light
@@ -250,8 +210,7 @@ select:
       # [INDEX=1]: Scene - Blue
       - if:
           condition:
-            lambda: |-
-              return (id(select_scene).active_index() == 1);
+            lambda: "return (id(select_scene).active_index() == 1);"
           then:
             - light.turn_on:
                 id: rgb_light
@@ -269,8 +228,7 @@ select:
       # [INDEX=2]: Scene - Green
       - if:
           condition:
-            lambda: |-
-              return (id(select_scene).active_index() == 2);
+            lambda: "return (id(select_scene).active_index() == 2);"
           then:
             - light.turn_on:
                 id: rgb_light
@@ -288,8 +246,7 @@ select:
       # [INDEX=3]: Scene - White
       - if:
           condition:
-            lambda: |-
-              return (id(select_scene).active_index() == 3);
+            lambda: "return (id(select_scene).active_index() == 3);"
           then:
             - light.turn_on:
                 id: rgb_light
@@ -307,8 +264,7 @@ select:
       # [INDEX=4]: Scene - Dimmed
       - if:
           condition:
-            lambda: |-
-              return (id(select_scene).active_index() == 4);
+            lambda: "return (id(select_scene).active_index() == 4);"
           then:
             - light.turn_on:
                 id: rgb_light
