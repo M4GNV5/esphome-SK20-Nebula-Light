@@ -36,13 +36,14 @@ api_password: "<your home assistant api password>"
 
 Create a file called `nebula.yaml` with the following contents:
 ```yaml
-# using esphome API for homeassistant
-api:
-  password: !secret api_password
+substitutions:
+  device_name: "Star Projector"
+  store_scene_to_flash: "false"
 
-# OR: use MQTT
-#mqtt:
-#  broker: !secret mqtt_broker
+# by default controlling is done via the button and via the web interface
+# if you use homeassistant you can uncomment below code:
+#api:
+#  password: !secret api_password
 
 packages:
   remote_package:
