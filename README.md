@@ -23,46 +23,39 @@ The following repositories, projects and tools helped a lot in jailbreaking my n
 ## Basic instructions
 This guide assumes you have a Linux computer and some basic terminal knowledge.
 The used tools also have some prerequisites like `python`, `docker` and `plattform.io`
+Make sure you have [the esphome CLI](https://esphome.io/guides/getting_started_command_line) installed
 
-First create a `secrets.yaml` file inputting your own parameters (see an example in [secrets.yaml](secrets.yaml):
+Configure your secrets by creating the following `secrets.yaml` file:
 ```yaml
 wifi_ssid: "<your SSID>"
 wifi_password: "<your wifi password>"
 wifi_fallback_password: "<some random password>"
 ota_password: "<some random password>"
-api_password: "<either: your home assistant api password>"
+api_password: "<your home assistant api password>"
 ```
 
-Then modify the `example.yaml` file to suite your needs or use your **own** configuration and just import the `nebula_light_device.yaml` esphome package with a `device_name` variable defined:
+Create a file called `nebula.yaml` with the following contents:
 ```yaml
-packages:
-  platform: !include platform_bk72xx.yaml
-  nebula: !include
-    file: nebula_light_device.yaml
-    vars:
-      device_name: "Star Projector"
-```
+# using esphome API for homeassistant
+api:
+  password: !secret api_password
 
-You can also import the esphome nebula package from a remote git repository by using:
-```yaml
-substitutions:
-  device_name: "Star Projector"
+# OR: use MQTT
+#mqtt:
+#  broker: !secret mqtt_broker
 
 packages:
   remote_package:
     url: https://github.com/M4GNV5/esphome-SK20-Nebula-Light.git
     ref: master
-    files: [platform_bk72xx.yaml, nebula_light_device.yaml]
+    files: [recommended_base.yaml, platform_bk72xx.yaml, nebula_light_device.yaml]
 ```
 
 Then, build and flash the image using the following commands:
 ```bash
-$ git clone https://github.com/M4GNV5/esphome-SK20-Nebula-Light
 $ git clone https://github.com/tuya-cloudcutter/tuya-cloudcutter
-$ cd esphome-SK20-Nebula-Light
-$ pip install esphome
-$ esphome compile example.yaml
-$ cp ./.esphome/build/sternenhimmel/.pioenvs/sternenhimmel/image_bk7231t_app.ota.ug.bin ../tuya-cloudcutter/custom-firmware/
+$ esphome compile nebula.yaml
+$ cp ./.esphome/build/nebula/.pioenvs/nebula/image_bk7231t_app.ota.ug.bin tuya-cloudcutter/custom-firmware/star_nebula_bk7231t.ota.ug.bin
 $ sudo ./tuya-cloudcutter.sh
 ```
 
@@ -72,6 +65,6 @@ The last program will guide you through the jailbreaking procedure, asking you f
 - Tuya Generic
 - SK20 Smart Star Projector
 - 1.1.2 - BK7231T / oem_bk7231t_light3_laser_nanxin
-- `image_bk7231t_app.ota.ug.bin`
+- `star_nebula_bk7231t.ota.ug.bin`
 
 The nebula light should now connect to your Wifi and/or host its own fallback AP.
