@@ -32,3 +32,4 @@ packages:
     file: nebula_light_device.yaml
     vars:
       device_name: "Star Projector"
+      store_scene_to_flash: false
