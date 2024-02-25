@@ -38,7 +38,7 @@ Create a file called `nebula.yaml` with the following contents:
 ```yaml
 substitutions:
   device_name: "Star Projector"
-  store_scene_to_flash: "false"
+  store_scene_to_rtc: "false"
 
 # by default controlling is done via the button and via the web interface
 # if you use homeassistant you can uncomment below code:

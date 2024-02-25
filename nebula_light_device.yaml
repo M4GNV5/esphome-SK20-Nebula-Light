@@ -8,7 +8,7 @@
 globals:
   - id: global_scene_id
     type: size_t
-    restore_value: $store_scene_to_flash
+    restore_value: $store_scene_to_rtc
     initial_value: "0"
 
 light:
