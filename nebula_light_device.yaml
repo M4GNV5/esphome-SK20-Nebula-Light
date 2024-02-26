@@ -5,12 +5,6 @@
 # - https://github.com/fonix232/esphome_nebula_light
 # - https://github.com/kireque/esphome_nebula_light/issues/8
 
-globals:
-  - id: global_scene_id
-    type: size_t
-    restore_value: $store_scene_to_flash
-    initial_value: "0"
-
 light:
   - platform: rgb
     name: "${device_name} Light"
@@ -74,12 +68,11 @@ switch:
     id: switch_main
     lambda: "return (id(motor).state || id(laser).current_values.is_on() || id(rgb_light).current_values.is_on());"
 
-    # Turn on the last scene. In a case there is no last scene saved, use the
-    # first scene in select (id=0).
+    # Turn on using the white scene
     turn_on_action:
       - select.set_index:
           id: select_scene
-          index: !lambda "return id(global_scene_id);"
+          index: 3
 
     # Completely turn off the laser, light, motor and button LED
     turn_off_action:
@@ -88,13 +81,6 @@ switch:
       - light.turn_off: rgb_light
       - light.turn_off: button_led1
       - script.stop: script_turn_off_timer
-
-      # Remember currently selected scene
-      - lambda: |-
-          auto index = id(select_scene).active_index();
-          if (index.has_value()) {
-            id(global_scene_id) = index.value();
-          }
 
 output:
   - platform: libretiny_pwm
@@ -179,6 +165,7 @@ select:
     - "Scene - Green"
     - "Scene - White"
     - "Scene - Dimmed"
+  initial_option: "Scene - White"
   optimistic: true
   on_value:
     then:
