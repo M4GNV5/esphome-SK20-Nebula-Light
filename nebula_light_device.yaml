@@ -50,7 +50,6 @@ light:
     id: button_led1
     output: button_led1_pwm
     restore_mode: ALWAYS_OFF
-    internal: true
 
 fan:
   platform: speed
@@ -79,7 +78,7 @@ switch:
       - fan.turn_off: motor
       - light.turn_off: laser
       - light.turn_off: rgb_light
-      - light.turn_off: button_led1
+      - light.turn_off: button_led0
       - script.stop: script_turn_off_timer
 
 output:
@@ -175,8 +174,7 @@ select:
 
       # Make sure the button LED is ON
       - light.turn_on:
-          id: button_led1
-          brightness: 60%
+          id: button_led0
 
       # [INDEX=0]: Scene - Red
       - if:
