@@ -1,3 +1,6 @@
+substitutions:
+  device_name: "Star Projector"
+
 esphome:
   name: "nebula"
 
@@ -20,3 +23,18 @@ ota:
 
 web_server:
   port: 80
+
+# by default controlling is done via the button and via the web interface
+# if you use homeassistant you can uncomment below code:
+#api:
+#  password: !secret api_password
+
+# or via MQTT:
+#mqtt:
+#  broker: !secret mqtt_broker
+
+packages:
+  remote_package:
+    url: https://github.com/M4GNV5/esphome-SK20-Nebula-Light.git
+    ref: master
+    files: [platform_bk72xx.yaml, nebula_light_device.yaml]

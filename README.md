@@ -34,28 +34,11 @@ ota_password: "<some random password>"
 api_password: "<your home assistant api password>"
 ```
 
-Create a file called `nebula.yaml` with the following contents:
-```yaml
-substitutions:
-  device_name: "Star Projector"
-  store_scene_to_flash: "false"
-
-# by default controlling is done via the button and via the web interface
-# if you use homeassistant you can uncomment below code:
-#api:
-#  password: !secret api_password
-
-packages:
-  remote_package:
-    url: https://github.com/M4GNV5/esphome-SK20-Nebula-Light.git
-    ref: master
-    files: [recommended_base.yaml, platform_bk72xx.yaml, nebula_light_device.yaml]
-```
-
 Then, build and flash the image using the following commands:
 ```bash
+$ wget https://raw.githubusercontent.com/M4GNV5/esphome-SK20-Nebula-Light/master/recommended_base.yaml
+$ esphome compile recommended_base.yaml
 $ git clone https://github.com/tuya-cloudcutter/tuya-cloudcutter
-$ esphome compile nebula.yaml
 $ cp ./.esphome/build/nebula/.pioenvs/nebula/image_bk7231t_app.ota.ug.bin tuya-cloudcutter/custom-firmware/star_nebula_bk7231t.ota.ug.bin
 $ sudo ./tuya-cloudcutter.sh
 ```
